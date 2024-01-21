@@ -12,7 +12,7 @@ public interface IBasketService {
 
     List<BasketItem> getAllBasketItems(UUID basketId);
 
-    BasketItem addBasketItem(UUID basketId, BasketItem basketItem);
+    BasketItem addBasketItem(BasketItem basketItem);
 
     void deleteBasketItem(UUID basketId, UUID productId);
 

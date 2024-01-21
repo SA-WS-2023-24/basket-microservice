@@ -17,8 +17,8 @@ public class BasketController {
         this.basketService = basketService;
     }
 
-    @GetMapping("{basketId}/")
-    public @ResponseBody List<BasketItem> getBasketItems(@PathVariable String basketId) {
-        return basketService.getAllBasketItems(UUID.fromString(basketId));
+    @GetMapping("/{basketId}")
+    public @ResponseBody List<BasketItem> getBasketItems(@PathVariable UUID basketId) {
+        return basketService.getAllBasketItems(basketId);
     }
 }

@@ -36,19 +36,19 @@ public class BasketService implements IBasketService {
     }
 
     @Override
-    public BasketItem addBasketItem(UUID basketId, BasketItem basketItem) {
-
+    public BasketItem addBasketItem(BasketItem basketItem) {
         BasketItemKey key = new BasketItemKey(basketItem.getBasketId(), basketItem.getProductId());
 
-        Optional<BasketItem> itemFromRepo = basketItemRepository.findById(key);
+        Optional<BasketItem> itemOptional = basketItemRepository.findById(key);
 
-        if (itemFromRepo.isPresent()) {
-            BasketItem item = itemFromRepo.get();
+        if (itemOptional.isPresent()) {
+            BasketItem item = itemOptional.get();
             item.setQuantity(item.getQuantity() + 1);
-            return item;
+            return basketItemRepository.save(item);
         } else {
             return basketItemRepository.save(basketItem);
         }
+
     }
 
     @Override
@@ -61,6 +61,6 @@ public class BasketService implements IBasketService {
 
     @Override
     public BasketItem updateBasketItem(UUID basketId, BasketItem basketItem) {
-
+        return null;
     }
 }
