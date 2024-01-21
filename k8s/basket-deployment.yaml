@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: basket-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: basket-service
+  template:
+    metadata:
+      labels:
+        app: basket-service
+    spec:
+      containers:
+        - name: basket-service
+          image: pcpartsshop/basket-service:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-basket:5432/postgres
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: postgres
+            - name: SPRING_RABBITMQ_HOST
+              value: rabbitmq
+            - name: SPRING_RABBITMQ_PORT
+              value: "5672"
+          ports:
+            - containerPort: 8080

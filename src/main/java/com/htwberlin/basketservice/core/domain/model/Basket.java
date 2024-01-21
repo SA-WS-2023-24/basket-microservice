@@ -16,6 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "basket")
+@Entity
 public class Basket {
     @Id
     @Column(name = "basket_id")

@@ -1,0 +1,13 @@
+apiVersion: skaffold/v4beta8
+kind: Config
+metadata:
+  name: basket-service
+build:
+  artifacts:
+    - image: pcpartsshop/basket-service
+      docker:
+        dockerfile: Dockerfile
+  local: {}
+manifests:
+  rawYaml:
+    - k8s/*
