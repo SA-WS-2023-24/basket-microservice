@@ -1,4 +1,4 @@
-package com.htwberlin.basketservice.core.domain.service;
+package com.htwberlin.basketservice.core.domain.service.exception;
 
 import java.util.UUID;
 

@@ -21,11 +21,8 @@ public class Basket {
     @Id
     @Column(name = "basket_id")
     private UUID basketId;
-
     private BigDecimal totalCost;
-
     private BigDecimal freeShippingLimit;
-
-    @OneToMany
+    @OneToMany(cascade = CascadeType.REMOVE)
     private List<BasketItem> items;
 }

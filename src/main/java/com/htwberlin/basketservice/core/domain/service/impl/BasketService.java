@@ -2,7 +2,8 @@ package com.htwberlin.basketservice.core.domain.service.impl;
 
 import com.htwberlin.basketservice.core.domain.model.Basket;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
-import com.htwberlin.basketservice.core.domain.service.BasketNotFoundException;
+import com.htwberlin.basketservice.core.domain.model.BasketItemKey;
+import com.htwberlin.basketservice.core.domain.service.exception.BasketNotFoundException;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketItemRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
@@ -25,20 +26,41 @@ public class BasketService implements IBasketService {
 
     @Override
     public Basket getBasketById(UUID basketId) {
-        return basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
+        return basketRepository.findById(basketId)
+                .orElseThrow(() -> new BasketNotFoundException(basketId));
     }
 
     @Override
     public List<BasketItem> getAllBasketItems(UUID basketId) {
-        return basketItemRepository.findBasketItemByBasketId(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
+        return basketItemRepository.findAllByBasketId(basketId);
     }
 
     @Override
     public BasketItem addBasketItem(UUID basketId, BasketItem basketItem) {
+
+        BasketItemKey key = new BasketItemKey(basketItem.getBasketId(), basketItem.getProductId());
+
+        Optional<BasketItem> itemFromRepo = basketItemRepository.findById(key);
+
+        if (itemFromRepo.isPresent()) {
+            BasketItem item = itemFromRepo.get();
+            item.setQuantity(item.getQuantity() + 1);
+            return item;
+        } else {
+            return basketItemRepository.save(basketItem);
+        }
     }
 
     @Override
     public void deleteBasketItem(UUID basketId, UUID productId) {
+        BasketItemKey key = new BasketItemKey(basketId, productId);
+
+        basketItemRepository.findById(key).ifPresent(
+                (item) -> basketItemRepository.delete(item));
+    }
+
+    @Override
+    public BasketItem updateBasketItem(UUID basketId, BasketItem basketItem) {
 
     }
 }
