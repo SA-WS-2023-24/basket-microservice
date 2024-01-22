@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class ProductMessageConsumer {
 
@@ -25,6 +27,7 @@ public class ProductMessageConsumer {
     public void receiveAddProductMessage(ProductMessage message) {
         LOGGER.info(String.format("Received message: ADD -> %s", message));
         BasketItem basketItem = Mapper.productMessageToBasketItem(message);
+        basketItem.setBasketId(UUID.fromString(message.getBasketId()));
         basketService.addBasketItem(basketItem);
     }
 

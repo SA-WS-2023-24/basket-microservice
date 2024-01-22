@@ -17,4 +17,6 @@ public interface IBasketService {
     void deleteBasketItem(UUID basketId, UUID productId);
 
     BasketItem updateBasketItem(UUID basketId, BasketItem basketItem);
+
+    UUID createBasket(UUID basketId);
 }

@@ -9,6 +9,8 @@ import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketReposit
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,7 +45,7 @@ public class BasketService implements IBasketService {
 
         if (itemOptional.isPresent()) {
             BasketItem item = itemOptional.get();
-            item.setQuantity(item.getQuantity() + 1);
+            item.setQuantity(item.getQuantity() + basketItem.getQuantity());
             return basketItemRepository.save(item);
         } else {
             return basketItemRepository.save(basketItem);
@@ -62,5 +64,16 @@ public class BasketService implements IBasketService {
     @Override
     public BasketItem updateBasketItem(UUID basketId, BasketItem basketItem) {
         return null;
+    }
+
+    @Override
+    public UUID createBasket(UUID basketId) {
+        Basket basket = Basket.builder()
+                .basketId(basketId)
+                .freeShippingLimit(new BigDecimal("60.00"))
+                .totalCost(new BigDecimal("0"))
+                .items(new ArrayList<>())
+                .build();
+        return basketRepository.save(basket).getBasketId();
     }
 }
