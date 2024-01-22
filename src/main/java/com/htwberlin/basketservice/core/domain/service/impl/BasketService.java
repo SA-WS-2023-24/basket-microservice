@@ -3,6 +3,7 @@ package com.htwberlin.basketservice.core.domain.service.impl;
 import com.htwberlin.basketservice.core.domain.model.Basket;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
 import com.htwberlin.basketservice.core.domain.model.BasketItemKey;
+import com.htwberlin.basketservice.core.domain.service.exception.BasketItemNotFoundException;
 import com.htwberlin.basketservice.core.domain.service.exception.BasketNotFoundException;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketItemRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketRepository;
@@ -63,7 +64,17 @@ public class BasketService implements IBasketService {
 
     @Override
     public BasketItem updateBasketItem(UUID basketId, BasketItem basketItem) {
-        return null;
+        BasketItemKey key = new BasketItemKey(basketId, basketItem.getProductId());
+
+        Optional<BasketItem> itemOptional = basketItemRepository.findById(key);
+
+        if (itemOptional.isPresent()) {
+            BasketItem item = itemOptional.get();
+            item.setQuantity(basketItem.getQuantity());
+            return basketItemRepository.save(item);
+        } else {
+            throw new BasketItemNotFoundException(key);
+        }
     }
 
     @Override
