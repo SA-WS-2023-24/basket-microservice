@@ -19,4 +19,6 @@ public interface IBasketService {
     BasketItem updateBasketItem(UUID basketId, BasketItem basketItem);
 
     UUID createBasket(UUID basketId);
+
+    Basket getBasket(UUID basketId);
 }

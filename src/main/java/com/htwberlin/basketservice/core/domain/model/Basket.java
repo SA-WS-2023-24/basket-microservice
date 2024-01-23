@@ -1,5 +1,6 @@
 package com.htwberlin.basketservice.core.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,8 @@ public class Basket {
     private UUID basketId;
     private BigDecimal totalCost;
     private BigDecimal freeShippingLimit;
-    @OneToMany(cascade = CascadeType.REMOVE)
+    @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
+    @JoinColumn(name = "basket_id")
+    @JsonIgnore
     private List<BasketItem> items;
 }
