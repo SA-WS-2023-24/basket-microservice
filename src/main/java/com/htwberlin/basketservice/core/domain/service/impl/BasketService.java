@@ -8,8 +8,6 @@ import com.htwberlin.basketservice.core.domain.service.exception.BasketNotFoundE
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketItemRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,9 +18,6 @@ import java.util.UUID;
 
 @Service
 public class BasketService implements IBasketService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BasketService.class);
-
     private final IBasketRepository basketRepository;
     private final IBasketItemRepository basketItemRepository;
 
@@ -39,6 +34,9 @@ public class BasketService implements IBasketService {
 
     @Override
     public List<BasketItem> getAllBasketItems(UUID basketId) {
+        basketRepository.findById(basketId).orElseThrow(
+                () -> new BasketNotFoundException(basketId));
+
         return basketItemRepository.findAllByBasketId(basketId);
     }
 
@@ -71,10 +69,11 @@ public class BasketService implements IBasketService {
         BasketItemKey key = new BasketItemKey(basketId, productId);
 
         Basket basket = basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
-
-        basketItemRepository.findById(key).ifPresent(
-                (item) -> basketItemRepository.delete(item));
-
+        Optional<BasketItem> optionalBasketItem = basketItemRepository.findById(key);
+        if (!optionalBasketItem.isPresent()) {
+            throw new BasketItemNotFoundException(key);
+        }
+        basketItemRepository.delete(optionalBasketItem.get());
         updateBasketPrice(basket);
     }
 
@@ -117,9 +116,6 @@ public class BasketService implements IBasketService {
     }
 
     private void updateBasketPrice(Basket basket) {
-
-        LOGGER.info(String.format("Updating basket: %s", basket.toString()));
-
         List<BasketItem> basketItems = basket.getItems();
 
         BigDecimal totalCost = basketItems.stream().
@@ -127,9 +123,6 @@ public class BasketService implements IBasketService {
                 basketItem.getPrice().multiply(new BigDecimal(basketItem.getQuantity())))
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
         basket.setTotalCost(totalCost);
-
-        LOGGER.info(String.format("Total cost calculated: %s", totalCost));
-
         basketRepository.save(basket);
     }
 }
