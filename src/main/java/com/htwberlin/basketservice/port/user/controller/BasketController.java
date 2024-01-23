@@ -1,5 +1,6 @@
 package com.htwberlin.basketservice.port.user.controller;
 
+import com.htwberlin.basketservice.core.domain.model.Basket;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class BasketController {
         this.basketService = basketService;
     }
 
-    @GetMapping("/{basketId}")
+    @GetMapping("/{basketId}/items")
     public @ResponseBody List<BasketItem> getBasketItems(@PathVariable UUID basketId) {
         return basketService.getAllBasketItems(basketId);
     }
@@ -27,5 +28,10 @@ public class BasketController {
     public ResponseEntity<?> createBasket(@PathVariable UUID basketId) {
         basketService.createBasket(basketId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{basketId}")
+    public @ResponseBody Basket getBasket(@PathVariable UUID basketId) {
+        return basketService.getBasket(basketId);
     }
 }

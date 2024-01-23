@@ -1,5 +1,6 @@
 package com.htwberlin.basketservice.core.domain.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -22,6 +23,7 @@ public class BasketItem {
     @Id
     private UUID productId;
     @Id
+    @Column(name = "basket_id")
     private UUID basketId;
     private String name;
     private String imgLink;

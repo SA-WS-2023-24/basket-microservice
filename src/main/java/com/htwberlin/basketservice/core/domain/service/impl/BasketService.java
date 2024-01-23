@@ -8,6 +8,8 @@ import com.htwberlin.basketservice.core.domain.service.exception.BasketNotFoundE
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketItemRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,6 +20,8 @@ import java.util.UUID;
 
 @Service
 public class BasketService implements IBasketService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasketService.class);
 
     private final IBasketRepository basketRepository;
     private final IBasketItemRepository basketItemRepository;
@@ -44,22 +48,34 @@ public class BasketService implements IBasketService {
 
         Optional<BasketItem> itemOptional = basketItemRepository.findById(key);
 
+
+        BasketItem itemAddedToRepo;
+
         if (itemOptional.isPresent()) {
             BasketItem item = itemOptional.get();
             item.setQuantity(item.getQuantity() + basketItem.getQuantity());
-            return basketItemRepository.save(item);
+            itemAddedToRepo = basketItemRepository.save(item);
         } else {
-            return basketItemRepository.save(basketItem);
+            itemAddedToRepo = basketItemRepository.save(basketItem);
         }
 
+        Basket basket = basketRepository.findById(basketItem.getBasketId())
+                .orElseThrow(() -> new BasketNotFoundException(basketItem.getBasketId()));
+
+        updateBasketPrice(basket);
+        return itemAddedToRepo;
     }
 
     @Override
     public void deleteBasketItem(UUID basketId, UUID productId) {
         BasketItemKey key = new BasketItemKey(basketId, productId);
 
+        Basket basket = basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
+
         basketItemRepository.findById(key).ifPresent(
                 (item) -> basketItemRepository.delete(item));
+
+        updateBasketPrice(basket);
     }
 
     @Override
@@ -68,13 +84,19 @@ public class BasketService implements IBasketService {
 
         Optional<BasketItem> itemOptional = basketItemRepository.findById(key);
 
+        Basket basket = basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
+
+        BasketItem itemFromRepo;
         if (itemOptional.isPresent()) {
             BasketItem item = itemOptional.get();
             item.setQuantity(basketItem.getQuantity());
-            return basketItemRepository.save(item);
+            itemFromRepo = basketItemRepository.save(item);
         } else {
             throw new BasketItemNotFoundException(key);
         }
+
+        updateBasketPrice(basket);
+        return itemFromRepo;
     }
 
     @Override
@@ -86,5 +108,28 @@ public class BasketService implements IBasketService {
                 .items(new ArrayList<>())
                 .build();
         return basketRepository.save(basket).getBasketId();
+    }
+
+    @Override
+    public Basket getBasket(UUID basketId) {
+        return basketRepository.findById(basketId)
+                .orElseThrow(() -> new BasketNotFoundException(basketId));
+    }
+
+    private void updateBasketPrice(Basket basket) {
+
+        LOGGER.info(String.format("Updating basket: %s", basket.toString()));
+
+        List<BasketItem> basketItems = basket.getItems();
+
+        BigDecimal totalCost = basketItems.stream().
+                map(basketItem ->
+                basketItem.getPrice().multiply(new BigDecimal(basketItem.getQuantity())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+        basket.setTotalCost(totalCost);
+
+        LOGGER.info(String.format("Total cost calculated: %s", totalCost));
+
+        basketRepository.save(basket);
     }
 }
