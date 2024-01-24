@@ -32,6 +32,6 @@ public class BasketController {
 
     @GetMapping("/{basketId}")
     public @ResponseBody Basket getBasket(@PathVariable UUID basketId) {
-        return basketService.getBasket(basketId);
+        return basketService.getBasketById(basketId);
     }
 }
