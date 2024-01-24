@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice
 public class BasketNotFoundAdvice {
-    @ResponseBody
     @ExceptionHandler(value = BasketNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
     String basketNotFoundHandler(BasketNotFoundException ex) {
         return ex.getMessage();
     }

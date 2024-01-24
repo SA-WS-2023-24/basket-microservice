@@ -109,12 +109,6 @@ public class BasketService implements IBasketService {
         return basketRepository.save(basket).getBasketId();
     }
 
-    @Override
-    public Basket getBasket(UUID basketId) {
-        return basketRepository.findById(basketId)
-                .orElseThrow(() -> new BasketNotFoundException(basketId));
-    }
-
     private void updateBasketPrice(Basket basket) {
         List<BasketItem> basketItems = basket.getItems();
 

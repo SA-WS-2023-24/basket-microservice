@@ -59,7 +59,7 @@ public class BasketServiceTest {
 
         when(basketRepository.findById(basketId)).thenReturn(Optional.of(basket));
 
-        Basket result = basketService.getBasket(basketId);
+        Basket result = basketService.getBasketById(basketId);
 
         assertEquals(basket, result);
     }
