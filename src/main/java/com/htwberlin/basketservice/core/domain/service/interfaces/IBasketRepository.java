@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.UUID;
 
-public interface IBasketRepository extends CrudRepository<Basket, UUID> {
+public interface IBasketRepository extends CrudRepository<Basket, String> {
 }

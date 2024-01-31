@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -50,7 +51,7 @@ public class BasketControllerTest {
 
         for (int i = 0; i < 20; i++) {
             BasketItem basketItem = BasketItem.builder()
-                    .basketId(UUID.randomUUID())
+                    .basketId(UUID.randomUUID().toString())
                     .name("Item " + i)
                     .quantity(i)
                     .productId(UUID.randomUUID())
@@ -64,7 +65,7 @@ public class BasketControllerTest {
     void getBasketItemsTest() throws Exception {
         UUID randomUuid = UUID.randomUUID();
 
-        when(basketService.getAllBasketItems(any(UUID.class))).thenReturn(basketItems);
+        when(basketService.getAllBasketItems(any(String.class))).thenReturn(basketItems);
 
         MvcResult result = mockMvc.perform(get("/v1/basket/{basketId}/items", randomUuid)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -73,7 +74,7 @@ public class BasketControllerTest {
         String responseBody = result.getResponse().getContentAsString();
 
         for (BasketItem item : basketItems) {
-            assertTrue(responseBody.contains(item.getBasketId().toString()));
+            assertTrue(responseBody.contains(item.getBasketId()));
         }
     }
 
@@ -81,7 +82,7 @@ public class BasketControllerTest {
     void getBasketItemsEmptyTest() throws Exception {
         UUID randomUuid = UUID.randomUUID();
 
-        when(basketService.getAllBasketItems(any(UUID.class))).thenReturn(new ArrayList<>());
+        when(basketService.getAllBasketItems(any(String.class))).thenReturn(new ArrayList<>());
 
         MvcResult result = mockMvc.perform(get("/v1/basket/{basketId}/items", randomUuid)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -90,19 +91,19 @@ public class BasketControllerTest {
 
         String content = result.getResponse().getContentAsString();
 
-        assertTrue(content.equals("[]"));
+        assertEquals("[]", content);
 
     }
 
     @Test
     void getBasketTest() throws Exception {
-        UUID randomUuid = UUID.randomUUID();
+        String randomUuid = UUID.randomUUID().toString();
         Basket basket = Basket.builder()
                 .basketId(randomUuid)
                 .items(basketItems)
                 .build();
 
-        when(basketService.getBasketById(any(UUID.class))).thenReturn(basket);
+        when(basketService.getBasketById(any(String.class))).thenReturn(basket);
 
         MvcResult result = mockMvc.perform(get("/v1/basket/{basketId}", randomUuid)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -110,13 +111,13 @@ public class BasketControllerTest {
 
         String responseBody = result.getResponse().getContentAsString();
 
-        assertTrue(responseBody.contains(basket.getBasketId().toString()));
+        assertTrue(responseBody.contains(basket.getBasketId()));
     }
 
     @Test
     void getBasketNotFound() throws Exception {
-        UUID randomUuid = UUID.randomUUID();
-        when(basketService.getBasketById(any(UUID.class))).thenThrow(new BasketNotFoundException(randomUuid));
+        String randomUuid = UUID.randomUUID().toString();
+        when(basketService.getBasketById(any(String.class))).thenThrow(new BasketNotFoundException(randomUuid));
 
         mockMvc.perform(get("/v1/basket/{basketId}", randomUuid)
                 .contentType(MediaType.APPLICATION_JSON))

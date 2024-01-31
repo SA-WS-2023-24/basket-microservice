@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RequestMapping("v1/basket")
 @RestController
@@ -20,18 +19,12 @@ public class BasketController {
     }
 
     @GetMapping("/{basketId}/items")
-    public @ResponseBody List<BasketItem> getBasketItems(@PathVariable UUID basketId) {
+    public @ResponseBody List<BasketItem> getBasketItems(@PathVariable String basketId) {
         return basketService.getAllBasketItems(basketId);
     }
 
-    @PostMapping("/{basketId}")
-    public ResponseEntity<?> createBasket(@PathVariable UUID basketId) {
-        basketService.createBasket(basketId);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/{basketId}")
-    public @ResponseBody Basket getBasket(@PathVariable UUID basketId) {
+    public @ResponseBody Basket getBasket(@PathVariable String basketId) {
         return basketService.getBasketById(basketId);
     }
 }

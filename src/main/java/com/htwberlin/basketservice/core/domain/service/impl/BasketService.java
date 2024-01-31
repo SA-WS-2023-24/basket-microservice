@@ -27,13 +27,13 @@ public class BasketService implements IBasketService {
     }
 
     @Override
-    public Basket getBasketById(UUID basketId) {
+    public Basket getBasketById(String basketId) {
         return basketRepository.findById(basketId)
                 .orElseThrow(() -> new BasketNotFoundException(basketId));
     }
 
     @Override
-    public List<BasketItem> getAllBasketItems(UUID basketId) {
+    public List<BasketItem> getAllBasketItems(String basketId) {
         basketRepository.findById(basketId).orElseThrow(
                 () -> new BasketNotFoundException(basketId));
 
@@ -65,12 +65,12 @@ public class BasketService implements IBasketService {
     }
 
     @Override
-    public void deleteBasketItem(UUID basketId, UUID productId) {
+    public void deleteBasketItem(String basketId, UUID productId) {
         BasketItemKey key = new BasketItemKey(basketId, productId);
 
         Basket basket = basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
         Optional<BasketItem> optionalBasketItem = basketItemRepository.findById(key);
-        if (!optionalBasketItem.isPresent()) {
+        if (optionalBasketItem.isEmpty()) {
             throw new BasketItemNotFoundException(key);
         }
         basketItemRepository.delete(optionalBasketItem.get());
@@ -78,7 +78,7 @@ public class BasketService implements IBasketService {
     }
 
     @Override
-    public BasketItem updateBasketItem(UUID basketId, BasketItem basketItem) {
+    public BasketItem updateBasketItem(String basketId, BasketItem basketItem) {
         BasketItemKey key = new BasketItemKey(basketId, basketItem.getProductId());
 
         Optional<BasketItem> itemOptional = basketItemRepository.findById(key);
@@ -99,14 +99,16 @@ public class BasketService implements IBasketService {
     }
 
     @Override
-    public UUID createBasket(UUID basketId) {
+    public void createBasket(String basketId) {
         Basket basket = Basket.builder()
                 .basketId(basketId)
                 .freeShippingLimit(new BigDecimal("60.00"))
                 .totalCost(new BigDecimal("0"))
                 .items(new ArrayList<>())
                 .build();
-        return basketRepository.save(basket).getBasketId();
+        if (!basketRepository.existsById(basketId)) {
+            basketRepository.save(basket);
+        }
     }
 
     private void updateBasketPrice(Basket basket) {
@@ -114,8 +116,8 @@ public class BasketService implements IBasketService {
 
         BigDecimal totalCost = basketItems.stream().
                 map(basketItem ->
-                basketItem.getPrice().multiply(new BigDecimal(basketItem.getQuantity())))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        basketItem.getPrice().multiply(new BigDecimal(basketItem.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         basket.setTotalCost(totalCost);
         basketRepository.save(basket);
     }
