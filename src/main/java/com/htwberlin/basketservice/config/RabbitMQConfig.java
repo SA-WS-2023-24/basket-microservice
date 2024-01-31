@@ -17,6 +17,9 @@ public class RabbitMQConfig {
     public static final String ADD_PRODUCT_QUEUE = "add_product_queue";
     public static final String UPDATE_PRODUCT_QUEUE = "update_product_queue";
     public static final String REMOVE_PRODUCT_QUEUE = "remove_product_queue";
+    public static final String CREATE_BASKET_QUEUE = "create_basket_queue";
+
+    public static final String BASKET_EXCHANGE = "basket_exchange";
 
     public static final String PRODUCT_EXCHANGE = "product_exchange";
 
@@ -24,6 +27,11 @@ public class RabbitMQConfig {
     @Bean
     public Queue addProductQueue() {
         return new Queue(ADD_PRODUCT_QUEUE, false);
+    }
+
+    @Bean
+    public Queue createBasketQueue() {
+        return new Queue(CREATE_BASKET_QUEUE, false);
     }
 
     @Bean
@@ -42,23 +50,33 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public TopicExchange basketTopicExchange() {
+        return new TopicExchange(BASKET_EXCHANGE);
+    }
+
+    @Bean
     public MessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
     @Bean
-    public Binding bindAddProductQueue(TopicExchange exchange) {
-        return BindingBuilder.bind(addProductQueue()).to(exchange).with("product.add");
+    public Binding bindAddProductQueue() {
+        return BindingBuilder.bind(addProductQueue()).to(productTopicExchange()).with("product.add");
     }
 
     @Bean
-    public Binding bindUpdateProductQueue(TopicExchange exchange) {
-        return BindingBuilder.bind(updateProductQueue()).to(exchange).with("product.update");
+    public Binding bindUpdateProductQueue() {
+        return BindingBuilder.bind(updateProductQueue()).to(productTopicExchange()).with("product.update");
     }
 
     @Bean
-    public Binding bindRemoveProductQueue(TopicExchange exchange) {
-        return BindingBuilder.bind(removeProductQueue()).to(exchange).with("product.remove");
+    public Binding bindRemoveProductQueue() {
+        return BindingBuilder.bind(removeProductQueue()).to(productTopicExchange()).with("product.remove");
+    }
+
+    @Bean
+    public Binding bindCreateBasketQueue() {
+        return BindingBuilder.bind(createBasketQueue()).to(basketTopicExchange()).with("basket.create");
     }
 
     @Bean

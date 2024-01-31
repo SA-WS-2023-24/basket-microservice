@@ -1,4 +1,4 @@
-package com.htwberlin.basketservice.port.user.product.consumer;
+package com.htwberlin.basketservice.port.consumer.product;
 
 import com.htwberlin.basketservice.config.RabbitMQConfig;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
@@ -24,7 +24,7 @@ public class ProductMessageConsumer {
     public void receiveAddProductMessage(ProductMessage message) {
         log.info(String.format("Received message: ADD -> %s", message));
         BasketItem basketItem = Mapper.productMessageToBasketItem(message);
-        basketItem.setBasketId(UUID.fromString(message.getBasketId()));
+        basketItem.setBasketId(message.getBasketId());
         basketService.addBasketItem(basketItem);
     }
 

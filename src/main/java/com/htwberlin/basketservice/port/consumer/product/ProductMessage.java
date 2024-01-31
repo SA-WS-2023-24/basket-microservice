@@ -1,4 +1,4 @@
-package com.htwberlin.basketservice.port.user.product.consumer;
+package com.htwberlin.basketservice.port.consumer.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

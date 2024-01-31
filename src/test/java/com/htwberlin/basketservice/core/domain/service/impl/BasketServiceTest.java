@@ -17,7 +17,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class BasketServiceTest {
 
@@ -37,23 +37,22 @@ public class BasketServiceTest {
 
     @Test
     public void testCreateBasket() {
-        UUID basketId = UUID.randomUUID();
-        Basket basket = new Basket();
-        basket.setBasketId(basketId);
+        String basketId = UUID.randomUUID().toString();
 
-        Basket savedBasket = new Basket();
-        savedBasket.setBasketId(basketId);
+        Basket savedBasket = Basket.builder()
+                .basketId(basketId)
+                .build();
 
         when(basketRepository.save(any(Basket.class))).thenReturn(savedBasket);
 
-        UUID result = basketService.createBasket(basketId);
+        basketService.createBasket(basketId);
 
-        assertEquals(basket.getBasketId(), result);
+        verify(basketRepository, times(1)).save(any(Basket.class));
     }
 
     @Test
     public void testGetBasket() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         Basket basket = new Basket();
         basket.setBasketId(basketId);
 
@@ -66,7 +65,7 @@ public class BasketServiceTest {
 
     @Test
     public void addBasketItemTest() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         UUID productId = UUID.randomUUID();
 
         int quantity = 3;
@@ -98,7 +97,7 @@ public class BasketServiceTest {
 
     @Test
     public void updateBasketItemTest() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         UUID productId = UUID.randomUUID();
         int quantity = 3;
         BasketItem basketItem = new BasketItem();
@@ -130,7 +129,7 @@ public class BasketServiceTest {
 
     @Test
     public void deleteBasketItemTest() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         UUID productId = UUID.randomUUID();
         int quantity = 3;
         BasketItem basketItem = new BasketItem();
@@ -157,7 +156,7 @@ public class BasketServiceTest {
 
     @Test
     public void testGetAllBasketItems() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         Basket basket = Basket.builder().basketId(basketId).build();
         List<BasketItem> basketItems = new ArrayList<>();
         BasketItem item = new BasketItem();
@@ -174,7 +173,7 @@ public class BasketServiceTest {
 
     @Test
     public void testGetBasketById_NotFound() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         when(basketRepository.findById(basketId)).thenReturn(Optional.empty());
         assertThrows(BasketNotFoundException.class, () -> basketService.getBasketById(basketId));
     }
@@ -182,14 +181,14 @@ public class BasketServiceTest {
     @Test
     public void testAddBasketItem_BasketNotFound() {
         BasketItem basketItem = new BasketItem();
-        basketItem.setBasketId(UUID.randomUUID());
+        basketItem.setBasketId(UUID.randomUUID().toString());
         when(basketRepository.findById(basketItem.getBasketId())).thenReturn(Optional.empty());
         assertThrows(BasketNotFoundException.class, () -> basketService.addBasketItem(basketItem));
     }
 
     @Test
     public void testDeleteBasketItem_BasketNotFound() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         UUID productId = UUID.randomUUID();
         when(basketRepository.findById(basketId)).thenReturn(Optional.empty());
         assertThrows(BasketNotFoundException.class, () -> basketService.deleteBasketItem(basketId, productId));
@@ -197,7 +196,7 @@ public class BasketServiceTest {
 
     @Test
     public void testUpdateBasketItem_BasketNotFound() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         BasketItem basketItem = new BasketItem();
         basketItem.setBasketId(basketId);
         basketItem.setProductId(UUID.randomUUID());
@@ -207,14 +206,14 @@ public class BasketServiceTest {
 
     @Test
     public void testGetAllBasketItems_BasketNotFound() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         when(basketRepository.findById(basketId)).thenReturn(Optional.empty());
         assertThrows(BasketNotFoundException.class, () -> basketService.getAllBasketItems(basketId));
     }
 
     @Test
     public void testGetAllBasketItems_BasketEmpty() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         when(basketRepository.findById(basketId)).thenReturn(Optional.of(new Basket()));
         when(basketItemRepository.findAllByBasketId(basketId)).thenReturn(Collections.emptyList());
         assertTrue(basketService.getAllBasketItems(basketId).isEmpty());
@@ -222,7 +221,7 @@ public class BasketServiceTest {
 
     @Test
     public void testDeleteBasketItem_ItemNotFound() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         UUID productId = UUID.randomUUID();
         when(basketRepository.findById(basketId)).thenReturn(Optional.of(new Basket()));
         when(basketItemRepository.findById(new BasketItemKey(basketId, productId))).thenReturn(Optional.empty());
@@ -231,7 +230,7 @@ public class BasketServiceTest {
 
     @Test
     public void testUpdateBasketItem_ItemNotFound() {
-        UUID basketId = UUID.randomUUID();
+        String basketId = UUID.randomUUID().toString();
         BasketItem basketItem = new BasketItem();
         basketItem.setBasketId(basketId);
         basketItem.setProductId(UUID.randomUUID());

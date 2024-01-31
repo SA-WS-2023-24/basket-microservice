@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface IBasketItemRepository extends CrudRepository<BasketItem, BasketItemKey> {
-    List<BasketItem> findAllByBasketId(UUID basketId);
+    List<BasketItem> findAllByBasketId(String basketId);
 }

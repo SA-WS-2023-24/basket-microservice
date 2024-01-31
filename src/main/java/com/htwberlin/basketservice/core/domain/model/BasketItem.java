@@ -24,7 +24,7 @@ public class BasketItem {
     private UUID productId;
     @Id
     @Column(name = "basket_id")
-    private UUID basketId;
+    private String basketId;
     private String name;
     private String imgLink;
     private String description;

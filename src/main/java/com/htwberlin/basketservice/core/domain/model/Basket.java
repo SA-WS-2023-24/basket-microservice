@@ -21,7 +21,7 @@ import java.util.UUID;
 public class Basket {
     @Id
     @Column(name = "basket_id")
-    private UUID basketId;
+    private String basketId;
     private BigDecimal totalCost;
     private BigDecimal freeShippingLimit;
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
