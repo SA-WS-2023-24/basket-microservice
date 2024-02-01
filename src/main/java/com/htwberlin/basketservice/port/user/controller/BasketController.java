@@ -9,6 +9,7 @@ import java.util.List;
 
 @RequestMapping("v1/basket")
 @RestController
+@CrossOrigin
 public class BasketController {
 
     private final IBasketService basketService;
