@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: postgres-pv-claim
+  name: basket-pv-claim
   labels:
     app: postgres
     tier: database
@@ -47,8 +47,8 @@ spec:
               name: postgres
           volumeMounts:
             - mountPath: /var/lib/postgresql/basket
-              name: postgres-persistance-storage
+              name: basket-persistance-storage
       volumes:
-        - name: postgres-persistance-storage
+        - name: basket-persistance-storage
           persistentVolumeClaim:
-            claimName: postgres-pv-claim
+            claimName: basket-pv-claim
