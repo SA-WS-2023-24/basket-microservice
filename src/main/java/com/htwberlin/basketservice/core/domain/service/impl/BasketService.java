@@ -1,42 +1,38 @@
 package com.htwberlin.basketservice.core.domain.service.impl;
 
-import com.htwberlin.basketservice.core.domain.model.Basket;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
-import com.htwberlin.basketservice.core.domain.model.BasketItemKey;
+import com.htwberlin.basketservice.core.domain.service.dto.BasketDTO;
 import com.htwberlin.basketservice.core.domain.service.exception.BasketItemNotFoundException;
-import com.htwberlin.basketservice.core.domain.service.exception.BasketNotFoundException;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketItemRepository;
-import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketRepository;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
+import com.htwberlin.basketservice.core.domain.model.BasketItemKey;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class BasketService implements IBasketService {
-    private final IBasketRepository basketRepository;
     private final IBasketItemRepository basketItemRepository;
 
-    public BasketService(IBasketRepository basketRepository, IBasketItemRepository basketItemRepository) {
-        this.basketRepository = basketRepository;
+    public BasketService(IBasketItemRepository basketItemRepository) {
         this.basketItemRepository = basketItemRepository;
     }
 
     @Override
-    public Basket getBasketById(String basketId) {
-        return basketRepository.findById(basketId)
-                .orElseThrow(() -> new BasketNotFoundException(basketId));
+    public BasketDTO getBasketById(String basketId) {
+        List<BasketItem> basketItems = basketItemRepository.findAllByBasketId(basketId);
+        return BasketDTO.builder()
+                .basketId(basketId)
+                .items(basketItems)
+                .totalCost(calculateTotalCost(basketItems))
+                .build();
     }
 
     @Override
     public List<BasketItem> getAllBasketItems(String basketId) {
-        basketRepository.findById(basketId).orElseThrow(
-                () -> new BasketNotFoundException(basketId));
-
         return basketItemRepository.findAllByBasketId(basketId);
     }
 
@@ -45,7 +41,6 @@ public class BasketService implements IBasketService {
         BasketItemKey key = new BasketItemKey(basketItem.getBasketId(), basketItem.getProductId());
 
         Optional<BasketItem> itemOptional = basketItemRepository.findById(key);
-
 
         BasketItem itemAddedToRepo;
 
@@ -57,10 +52,6 @@ public class BasketService implements IBasketService {
             itemAddedToRepo = basketItemRepository.save(basketItem);
         }
 
-        Basket basket = basketRepository.findById(basketItem.getBasketId())
-                .orElseThrow(() -> new BasketNotFoundException(basketItem.getBasketId()));
-
-        updateBasketPrice(basket);
         return itemAddedToRepo;
     }
 
@@ -68,13 +59,11 @@ public class BasketService implements IBasketService {
     public void deleteBasketItem(String basketId, UUID productId) {
         BasketItemKey key = new BasketItemKey(basketId, productId);
 
-        Basket basket = basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
         Optional<BasketItem> optionalBasketItem = basketItemRepository.findById(key);
         if (optionalBasketItem.isEmpty()) {
             throw new BasketItemNotFoundException(key);
         }
         basketItemRepository.delete(optionalBasketItem.get());
-        updateBasketPrice(basket);
     }
 
     @Override
@@ -82,8 +71,6 @@ public class BasketService implements IBasketService {
         BasketItemKey key = new BasketItemKey(basketId, basketItem.getProductId());
 
         Optional<BasketItem> itemOptional = basketItemRepository.findById(key);
-
-        Basket basket = basketRepository.findById(basketId).orElseThrow(() -> new BasketNotFoundException(basketId));
 
         BasketItem itemFromRepo;
         if (itemOptional.isPresent()) {
@@ -94,31 +81,13 @@ public class BasketService implements IBasketService {
             throw new BasketItemNotFoundException(key);
         }
 
-        updateBasketPrice(basket);
         return itemFromRepo;
     }
 
-    @Override
-    public void createBasket(String basketId) {
-        Basket basket = Basket.builder()
-                .basketId(basketId)
-                .freeShippingLimit(new BigDecimal("60.00"))
-                .totalCost(new BigDecimal("0"))
-                .items(new ArrayList<>())
-                .build();
-        if (!basketRepository.existsById(basketId)) {
-            basketRepository.save(basket);
-        }
-    }
-
-    private void updateBasketPrice(Basket basket) {
-        List<BasketItem> basketItems = basket.getItems();
-
-        BigDecimal totalCost = basketItems.stream().
+    private BigDecimal calculateTotalCost(List<BasketItem> basketItems) {
+        return basketItems.stream().
                 map(basketItem ->
                         basketItem.getPrice().multiply(new BigDecimal(basketItem.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        basket.setTotalCost(totalCost);
-        basketRepository.save(basket);
     }
 }

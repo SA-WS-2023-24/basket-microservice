@@ -1,9 +1,8 @@
 package com.htwberlin.basketservice.port.user.controller;
 
-import com.htwberlin.basketservice.core.domain.model.Basket;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
+import com.htwberlin.basketservice.core.domain.service.dto.BasketDTO;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,7 +23,7 @@ public class BasketController {
     }
 
     @GetMapping("/{basketId}")
-    public @ResponseBody Basket getBasket(@PathVariable String basketId) {
+    public @ResponseBody BasketDTO getBasket(@PathVariable String basketId) {
         return basketService.getBasketById(basketId);
     }
 }

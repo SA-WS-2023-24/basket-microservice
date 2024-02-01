@@ -1,8 +1,8 @@
 package com.htwberlin.basketservice.port.user.controller;
 
 
-import com.htwberlin.basketservice.core.domain.model.Basket;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
+import com.htwberlin.basketservice.core.domain.service.dto.BasketDTO;
 import com.htwberlin.basketservice.core.domain.service.exception.BasketNotFoundException;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
 import com.htwberlin.basketservice.port.user.controller.advice.BasketItemNotFoundAdvice;
@@ -98,7 +98,7 @@ public class BasketControllerTest {
     @Test
     void getBasketTest() throws Exception {
         String randomUuid = UUID.randomUUID().toString();
-        Basket basket = Basket.builder()
+        BasketDTO basket = BasketDTO.builder()
                 .basketId(randomUuid)
                 .items(basketItems)
                 .build();
