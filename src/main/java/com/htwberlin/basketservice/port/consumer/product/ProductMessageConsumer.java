@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Slf4j
 @Component
 public class ProductMessageConsumer {
@@ -36,7 +38,10 @@ public class ProductMessageConsumer {
     @RabbitListener(queues = RabbitMQConfig.REMOVE_PRODUCT_QUEUE)
     public void receiveRemoveProductMessage(ProductMessage message) {
         log.info(String.format("Received message: REMOVE -> %s", message));
-        BasketItem basketItem = Mapper.productMessageToBasketItem(message);
+        BasketItem basketItem = BasketItem.builder()
+                .basketId(message.getBasketId())
+                .productId(UUID.fromString(message.getProductId()))
+                .build();
         basketService.deleteBasketItem(basketItem.getBasketId(), basketItem.getProductId());
     }
 }
