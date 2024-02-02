@@ -14,9 +14,9 @@ public interface IBasketService {
 
     List<BasketItem> getAllBasketItems(String basketId);
 
-    BasketItem addBasketItem(BasketItem basketItem);
+    void addBasketItem(BasketItem basketItem);
 
     void deleteBasketItem(String basketId, UUID productId) throws BasketNotFoundException ;
 
-    BasketItem updateBasketItem(String basketId, BasketItem basketItem) throws BasketItemNotFoundException;
+    void updateBasketItem(String basketId, BasketItem basketItem) throws BasketItemNotFoundException;
 }

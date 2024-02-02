@@ -2,8 +2,6 @@ package com.htwberlin.basketservice.port.consumer.product;
 
 import com.htwberlin.basketservice.config.RabbitMQConfig;
 import com.htwberlin.basketservice.core.domain.model.BasketItem;
-import com.htwberlin.basketservice.core.domain.service.exception.BasketItemNotFoundException;
-import com.htwberlin.basketservice.core.domain.service.exception.BasketNotFoundException;
 import com.htwberlin.basketservice.core.domain.service.interfaces.IBasketService;
 import com.htwberlin.basketservice.port.user.mapper.Mapper;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +32,7 @@ public class ProductMessageConsumer {
     public void receiveUpdateProductMessage(ProductMessage message) {
         log.info(String.format("Received message: UPDATE -> %s", message));
         BasketItem basketItem = Mapper.productMessageToBasketItem(message);
-        try {
-            basketService.updateBasketItem(basketItem.getBasketId(), basketItem);
-        } catch (BasketItemNotFoundException basketItemNotFoundException) {
-            log.info(basketItemNotFoundException.getMessage());
-        }
+        basketService.updateBasketItem(basketItem.getBasketId(), basketItem);
     }
 
     @RabbitListener(queues = RabbitMQConfig.REMOVE_PRODUCT_QUEUE)
@@ -48,10 +42,6 @@ public class ProductMessageConsumer {
                 .basketId(message.getBasketId())
                 .productId(UUID.fromString(message.getProductId()))
                 .build();
-        try {
-            basketService.deleteBasketItem(basketItem.getBasketId(), basketItem.getProductId());
-        } catch (BasketNotFoundException basketNotFoundException) {
-            log.info(basketNotFoundException.getMessage());
-        }
+        basketService.deleteBasketItem(basketItem.getBasketId(), basketItem.getProductId());
     }
 }
